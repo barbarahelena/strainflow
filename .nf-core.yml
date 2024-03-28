@@ -1,0 +1,5 @@
+repository_type: pipeline
+template:
+  author: barbarahelena
+  description: strainphlan pipeline
+  name: strainflow
