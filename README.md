@@ -19,20 +19,10 @@
 
 ## Introduction
 
-**nf-core/strainflow** is a bioinformatics pipeline that ...
+**strainflow** is a bioinformatics pipeline that uses StrainPhlan
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
-
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
-
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+1. Sample input check
+2. [`StrainPhlAn`](https://github.com/biobakery/MetaPhlAn/wiki/StrainPhlAn-4) to get species-level genome bins (SGBs) and make a table of the number of SNPs between the sample strains and the reference genome based on the strain alignment - this subworkflow is under development.
 
 ## Usage
 

@@ -157,6 +157,35 @@
                 }
             }
         },
+        "strainphlan": {
+            "title": "StrainPhlAn",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "phylophlan_mode": {
+                    "type": "string",
+                    "default": "accurate",
+                    "fa_icon": "fas fa-plane"
+                },
+                "sample_with_n_markers": {
+                    "type": "number",
+                    "default": 80.0,
+                    "fa_icon": "fas fa-vial"
+                },
+                "marker_in_n_samples": {
+                    "type": "number",
+                    "default": 80.0,
+                    "fa_icon": "fas fa-barcode"
+                },
+                "mutation_rates": {
+                    "type": "boolean",
+                    "default": true,
+                    "fa_icon": "fas fa-clone"
+                }
+            },
+            "fa_icon": "fas fa-virus"
+        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",

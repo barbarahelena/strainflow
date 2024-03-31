@@ -4,7 +4,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -26,15 +25,25 @@ workflow STRAINFLOW {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
+    // ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
+    // ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
+    INPUT_CHECK (
         ch_samplesheet
     )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    //
+    // SUBWORKFLOW: StrainPhlan
+    //
+    STRAINPHLAN ( 
+        sambz,
+        database,
+        params.sample_with_n_markers,
+        params.marker_in_n_samples,
+        params.phylophlan_mode,
+        params.mutation_rates
+    )
+    ch_versions = ch_versions.mix(STRAINPHLAN.out.versions)
 
     //
     // Collate and save software versions
