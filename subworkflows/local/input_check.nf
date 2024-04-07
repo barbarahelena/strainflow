@@ -9,35 +9,30 @@ workflow INPUT_CHECK {
     samplesheet // file: /path/to/samplesheet.csv
 
     main:
+
     SAMPLESHEETCHECK ( samplesheet )
         .csv
         .splitCsv ( header:true, sep:',' )
-        .map { create_paired_channel(it) }
-        .set { paths }
+        .map { create_meta_channel(it) }
+        .set { sambz }
 
     emit:
-    paths                                     // channel: [ val(meta), [ reads ] ]
+    sambz                                    // channel: [ val(meta), [ filename ] ]
     versions = SAMPLESHEETCHECK.out.versions // channel: [ versions.yml ]
 }
 
-// Function to get list of [ meta, [ fastq_1, fastq_2 ] ]
-def create_paired_channel(LinkedHashMap row) {
-    // create meta map
+// Function to get list of [ meta, [ sambz ] ]
+def create_meta_channel(LinkedHashMap row) {
+    // Create meta map
     def meta = [:]
-    meta.id         = row.sample
+    meta.id = row.sampleID
+    meta.subject = row.subjectID
 
-    // add path(s) of the fastq file(s) to the meta map
-    def paired_meta = []
-    if (!file(row.sample1).exists()) {
-        exit 1, "ERROR: Please check input samplesheet -> Sample 1 sambz file does not exist!\n${row.sample1}"
+    // Add path(s) of the sambz file to the meta map
+    def file_meta = []
+    if (!file(row.sambz).exists()) {
+        exit 1, "ERROR: Please check input samplesheet -> Sambz2 file does not exist!\n${row.sambz}"
     }
-    if (meta.single_end) {
-        paired_meta = [ meta, [ file(row.sample1) ] ]
-    } else {
-        if (!file(row.sample2).exists()) {
-            exit 1, "ERROR: Please check input samplesheet -> Sample 2 sambz file does not exist!\n${row.sample2}"
-        }
-        paired_meta = [ meta, [ file(row.sample1), file(row.sample2) ] ]
-    }
-    return paired_meta
+    file_meta = [meta, [file(row.sambz)]]
+    return file_meta
 }

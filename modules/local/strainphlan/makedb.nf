@@ -1,4 +1,4 @@
-process METAPHLAN_MAKEDB {
+process STRAINPHLAN_MAKEDB {
     label 'process_medium'
     label 'metaphlan'
     storeDir 'db'

@@ -4,6 +4,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+// include { INPUT_CHECK            } from '../subworkflows/local/input_check'
+include { SAMPLESHEETCHECK       } from '../modules/local/samplesheetcheck'
+include { STRAINPHLAN            } from '../subworkflows/local/strainphlan'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -28,22 +31,25 @@ workflow STRAINFLOW {
     // ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     // ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-    INPUT_CHECK (
-        ch_samplesheet
-    )
+    SAMPLESHEETCHECK ( ch_samplesheet )
+    ch_versions = ch_versions.mix(SAMPLESHEETCHECK.out.versions)
+        // .splitCsv ( header:true, sep:',' )
+        // .view()
+    // INPUT_CHECK (
+    //     ch_samplesheet
+    // )
 
     //
     // SUBWORKFLOW: StrainPhlan
     //
-    STRAINPHLAN ( 
-        sambz,
-        database,
-        params.sample_with_n_markers,
-        params.marker_in_n_samples,
-        params.phylophlan_mode,
-        params.mutation_rates
-    )
-    ch_versions = ch_versions.mix(STRAINPHLAN.out.versions)
+    // STRAINPHLAN ( 
+    //     INPUT_CHECK.out.sambz,
+    //     params.sample_with_n_markers,
+    //     params.marker_in_n_samples,
+    //     params.phylophlan_mode,
+    //     params.mutation_rates
+    // )
+    // ch_versions = ch_versions.mix(STRAINPHLAN.out.versions)
 
     //
     // Collate and save software versions
@@ -52,9 +58,9 @@ workflow STRAINFLOW {
         .collectFile(storeDir: "${params.outdir}/pipeline_info", name: 'nf_core_pipeline_software_mqc_versions.yml', sort: true, newLine: true)
         .set { ch_collated_versions }
 
-    //
-    // MODULE: MultiQC
-    //
+    // //
+    // // MODULE: MultiQC
+    // //
     ch_multiqc_config                     = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     ch_multiqc_custom_config              = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
     ch_multiqc_logo                       = params.multiqc_logo ? Channel.fromPath(params.multiqc_logo, checkIfExists: true) : Channel.empty()

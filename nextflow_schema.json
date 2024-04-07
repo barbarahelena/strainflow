@@ -17,10 +17,10 @@
                     "format": "file-path",
                     "exists": true,
                     "schema": "assets/schema_input.json",
-                    "mimetype": "text/csv",
-                    "pattern": "^\\S+\\.csv$",
+                    "mimetype": "text/csv/tsv",
+                    "pattern": "^\\S+\\.(csv|tsv)$",
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/strainflow/usage#samplesheet-input).",
+                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "outdir": {
@@ -40,37 +40,6 @@
                     "type": "string",
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
-                }
-            }
-        },
-        "reference_genome_options": {
-            "title": "Reference genome options",
-            "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Reference genome related files and options required for the workflow.",
-            "properties": {
-                "genome": {
-                    "type": "string",
-                    "description": "Name of iGenomes reference.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
-                },
-                "fasta": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "mimetype": "text/plain",
-                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
-                },
-                "igenomes_ignore": {
-                    "type": "boolean",
-                    "description": "Do not load the iGenomes reference config.",
-                    "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
                 }
             }
         },
@@ -156,35 +125,6 @@
                     "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
                 }
             }
-        },
-        "strainphlan": {
-            "title": "StrainPhlAn",
-            "type": "object",
-            "description": "",
-            "default": "",
-            "properties": {
-                "phylophlan_mode": {
-                    "type": "string",
-                    "default": "accurate",
-                    "fa_icon": "fas fa-plane"
-                },
-                "sample_with_n_markers": {
-                    "type": "number",
-                    "default": 80.0,
-                    "fa_icon": "fas fa-vial"
-                },
-                "marker_in_n_samples": {
-                    "type": "number",
-                    "default": 80.0,
-                    "fa_icon": "fas fa-barcode"
-                },
-                "mutation_rates": {
-                    "type": "boolean",
-                    "default": true,
-                    "fa_icon": "fas fa-clone"
-                }
-            },
-            "fa_icon": "fas fa-virus"
         },
         "generic_options": {
             "title": "Generic options",
@@ -303,9 +243,6 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/reference_genome_options"
-        },
-        {
             "$ref": "#/definitions/institutional_config_options"
         },
         {
@@ -314,5 +251,32 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "genome": {
+            "type": "string"
+        },
+        "igenomes_ignore": {
+            "type": "boolean"
+        },
+        "fasta": {
+            "type": "string"
+        },
+        "sample_with_n_markers": {
+            "type": "integer",
+            "default": 80
+        },
+        "marker_in_n_samples": {
+            "type": "integer",
+            "default": 80
+        },
+        "phylophlan_mode": {
+            "type": "string",
+            "default": "accurate"
+        },
+        "mutation_rates": {
+            "type": "boolean",
+            "default": true
+        }
+    }
 }

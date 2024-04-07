@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-
 """Provide a command line tool to validate and transform tabular samplesheets."""
-
 
 import argparse
 import csv
@@ -31,27 +29,27 @@ class RowChecker:
 
     def __init__(
         self,
-        subj_col="subject",
-        first_col="sample1",
-        second_col="sample2",
+        sample_col="sampleID",
+        subj_col="subjectID",
+        file_col="sambz",
         **kwargs,
     ):
         """
         Initialize the row checker with the expected column names.
 
         Args:
-            subj_col (str): The name of the column that contains the sample name
-                (default "subject").
-            first_col (str): The name of the column that contains the first (or only)
+            sample_col (str): The name of the column that contains the sample name
+                (default "sampleid").
+            subj_col (str): The name of the column that contains the subject name
+                (default "subjectid").
+            file_col (str): The name of the column that contains the first (or only)
                 sam.bz2 file path (default "sample1").
-            second_col (str): The name of the column that contains the second (if any)
-                FASTQ file path (default "sample2").
 
         """
         super().__init__(**kwargs)
+        self._sample_col = sample_col
         self._subj_col = subj_col
-        self._first_col = first_col
-        self._second_col = second_col
+        self._file_col = file_col
         self._seen = set()
         self.modified = []
 
@@ -64,39 +62,31 @@ class RowChecker:
                 (values).
 
         """
+        self._validate_sample(row)
         self._validate_subject(row)
-        self._validate_first(row)
-        self._validate_second(row)
-        self._validate_pair(row)
-        self._seen.add((row[self._subj_col], row[self._first_col]))
+        self._validate_file(row)
+        self._seen.add((row[self._sample_col],row[self._subj_col], row[self._file_col]))
         self.modified.append(row)
 
-    def _validate_subject(self, row):
+    def _validate_sample(self, row):
         """Assert that the sample name exists and convert spaces to underscores."""
-        if len(row[self._subj_col]) <= 0:
+        if len(row[self._sample_col]) <= 0:
             raise AssertionError("Subject input is required.")
         # Sanitize samples slightly.
+        row[self._sample_col] = row[self._sample_col].replace(" ", "_")
+    
+    def _validate_subject(self, row):
+        """Assert that the subject name exists and convert spaces to underscores."""
+        if len(row[self._subj_col]) <= 0:
+            raise AssertionError("Subject input is required.")
+        # Sanitize subject names slightly.
         row[self._subj_col] = row[self._subj_col].replace(" ", "_")
 
-    def _validate_first(self, row):
-        """Assert that the first FASTQ entry is non-empty and has the right format."""
-        if len(row[self._first_col]) <= 0:
-            raise AssertionError("At least the first sambz file is required.")
-        self._validate_sambz_format(row[self._first_col])
-
-    def _validate_second(self, row):
-        """Assert that the second sambz entry has the right format if it exists."""
-        if len(row[self._second_col]) > 0:
-            self._validate_sambz_format(row[self._second_col])
-
-    def _validate_pair(self, row):
-        """Assert that read pairs have the same file extension."""
-        if not row[self._first_col] or not row[self._second_col]:
-            raise AssertionError("Both first and second sambz files are required.")
-        first_col_suffix = Path(row[self._first_col]).suffixes[-1]
-        second_col_suffix = Path(row[self._second_col]).suffixes[-1]
-        if first_col_suffix != second_col_suffix:
-            raise AssertionError("Sambz pairs must have the same file extensions.")
+    def _validate_file(self, row):
+        """Assert that the sam.bz entry is non-empty and has the right format."""
+        if len(row[self._file_col]) <= 0:
+            raise AssertionError("The sambz file path is required.")
+        self._validate_sambz_format(row[self._file_col])
 
     def _validate_sambz_format(self, filename):
         """Assert that a given filename has one of the expected sambz extensions."""
@@ -106,22 +96,22 @@ class RowChecker:
                 f"It should be one of: {', '.join(self.VALID_FORMATS)}"
             )
 
-    def validate_unique_subject(self):
+    def validate_unique_sample(self):
         """
-        Assert that the combination of subject name and sambz filename is unique.
+        Assert that the combination of sample name and sambz filename is unique.
 
         In addition to the validation, also rename all samples to have a suffix of _T{n}, where n is the
         number of times the same sample exist, but with different FASTQ files, e.g., multiple runs per experiment.
 
         """
         if len(self._seen) != len(self.modified):
-            raise AssertionError("The pair of subject name and sambz must be unique.")
+            raise AssertionError("The pair of sample name and sambz must be unique.")
         seen = Counter()
         for row in self.modified:
-            subject = row[self._subj_col]
-            seen[subject] += 1
-            row[self._subj_col] = f"{subject}_T{seen[subject]}"
-
+            sample = row[self._sample_col]
+            seen[sample] += 1
+            if seen[sample] > 1:
+                row[self._sample_col] = f"{sample}_T{seen[sample]}"
 
 def read_head(handle, num_lines=10):
     """Read the specified number of lines from the current position in the file."""
@@ -131,7 +121,6 @@ def read_head(handle, num_lines=10):
             break
         lines.append(line)
     return "".join(lines)
-
 
 def sniff_format(handle):
     """
@@ -156,8 +145,7 @@ def sniff_format(handle):
 
 def check_samplesheet(file_in, file_out):
     """
-    Check that the tabular samplesheet has the structure expected by nf-core pipelines.
-
+    Check that the tabular samplesheet has the structure expected.
     Validate the general shape of the table, expected columns, and each row.
 
     Args:
@@ -165,20 +153,14 @@ def check_samplesheet(file_in, file_out):
             CSV, TSV, or any other format automatically recognized by ``csv.Sniffer``.
         file_out (pathlib.Path): Where the validated and transformed samplesheet should
             be created; always in CSV format.
-        mergeruns (bool): Whether to perform merging of runs.
 
     Example:
-        This function checks that the samplesheet follows the following structure,
-        see also the `viral recon samplesheet`_::
-
-            subject,sample1,sample2
-            SUBJECT1,SUBJECT1_1.sam.bz2,SUBJECT1_2.sam.bz2
-
-    .. _viral recon samplesheet:
-        https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/samplesheet/samplesheet_test_illumina_amplicon.csv
+        This function checks that the samplesheet follows the following structure:
+            sampleID,subjectID,sambz
+            sample1_1,subj1,sample1_1.sam.bz2
 
     """
-    required_columns = {"subject", "sample1", "sample2"}
+    required_columns = {"sampleID", "subjectID", "sambz"}
     # See https://docs.python.org/3.9/library/csv.html#id3 to read up on `newline=""`.
     with file_in.open(newline="") as in_handle:
         reader = csv.DictReader(in_handle, dialect=sniff_format(in_handle))
@@ -195,7 +177,7 @@ def check_samplesheet(file_in, file_out):
             except AssertionError as error:
                 logger.critical(f"{str(error)} On line {i + 2}.")
                 sys.exit(1)
-        checker.validate_unique_subject()
+        checker.validate_unique_sample()
     header = list(reader.fieldnames)
     # See https://docs.python.org/3.9/library/csv.html#id3 to read up on `newline=""`.
     with file_out.open(mode="w", newline="") as out_handle:
@@ -229,11 +211,6 @@ def parse_args(argv=None):
         help="The desired log level (default WARNING).",
         choices=("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"),
         default="WARNING",
-    )
-    parser.add_argument(
-        "--mergeruns",
-        help="Whether to perform merging of runs.",
-        action="store_true",
     )
     return parser.parse_args(argv)
 

@@ -7,14 +7,13 @@ process SAMPLESHEETCHECK {
     path samplesheet
 
     output:
-    path '*.csv'       , emit: csv
+    path 'samplesheet.valid.csv'       , emit: csv
     path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
-    merge = mergeruns == true ? "--mergeruns" : ""
 
-    script: // This script is bundled with the pipeline, in nf-core/metagenomicspipeline/bin/
+    script:
     """
     check_samplesheet.py \\
         $samplesheet \\
