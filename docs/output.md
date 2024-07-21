@@ -1,43 +1,29 @@
-# nf-core/strainflow: Output
+# strainflow: Output
 
 ## Introduction
 
-This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
-
-The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
-
-<!-- TODO nf-core: Write this documentation describing your workflow's output -->
+This document describes the output produced by the pipeline. The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
 
 ## Pipeline overview
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
-- [FastQC](#fastqc) - Raw read QC
+- [Input check](#input-check) - Validation of the input sample sheet that contains sampleIDs, subjectIDs and paths to sam.bz2 files (MetaPhlAn output)
+- [StrainPhlAn](#strainphlan) - Use Biobakery's StrainPlAn to track strains across samples.
+  - [Reconstruct strains](#reconstruct-strains) - Using sampletomarkers.py, reconstruct all species strains (sample-reconstructed strains).
+  - [Extract markers](#extract-markers) - Extract markers for SGBs with extractmarkers.py.
+  - [Multiple sequence alignment and phylogenetic tree](#msa-and-tree) - Use StrainPlAn and PyphlAn for building MSA and tree.
+  - [Calculate thresholds](#calculate-thresholds) - Calculate thresholds using same subject vs different subject samples.
+  - [Merge tables](#merge-tables) - Merge strainsharing and threshold tables.
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
-### FastQC
+### Input check
 
-<details markdown="1">
-<summary>Output files</summary>
 
-- `fastqc/`
-  - `*_fastqc.html`: FastQC report containing quality metrics.
-  - `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
+### StrainPhlAn
 
-</details>
 
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
-
-![MultiQC - FastQC sequence counts plot](images/mqc_fastqc_counts.png)
-
-![MultiQC - FastQC mean quality scores plot](images/mqc_fastqc_quality.png)
-
-![MultiQC - FastQC adapter content plot](images/mqc_fastqc_adapter.png)
-
-:::note
-The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
-:::
 
 ### MultiQC
 
