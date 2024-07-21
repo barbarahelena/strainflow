@@ -4,8 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// include { INPUT_CHECK            } from '../subworkflows/local/input_check'
-include { SAMPLESHEETCHECK       } from '../modules/local/samplesheetcheck'
+include { INPUT_CHECK            } from '../subworkflows/local/input_check'
 include { STRAINPHLAN            } from '../subworkflows/local/strainphlan'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
@@ -23,6 +22,7 @@ workflow STRAINFLOW {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
+    ch_profiles
 
     main:
 
@@ -31,25 +31,25 @@ workflow STRAINFLOW {
     // ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     // ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-    SAMPLESHEETCHECK ( ch_samplesheet )
-    ch_versions = ch_versions.mix(SAMPLESHEETCHECK.out.versions)
-        // .splitCsv ( header:true, sep:',' )
-        // .view()
-    // INPUT_CHECK (
-    //     ch_samplesheet
-    // )
+    INPUT_CHECK (
+        ch_samplesheet
+    )
+    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     //
     // SUBWORKFLOW: StrainPhlan
     //
-    // STRAINPHLAN ( 
-    //     INPUT_CHECK.out.sambz,
-    //     params.sample_with_n_markers,
-    //     params.marker_in_n_samples,
-    //     params.phylophlan_mode,
-    //     params.mutation_rates
-    // )
-    // ch_versions = ch_versions.mix(STRAINPHLAN.out.versions)
+    STRAINPHLAN ( 
+        INPUT_CHECK.out.sambz,
+        INPUT_CHECK.out.samplesheet,
+        ch_profiles, 
+        params.sample_with_n_markers,
+        params.marker_in_n_samples,
+        params.sample_markers_filter,
+        params.phylophlan_mode,
+        params.mutation_rates
+    )
+    ch_versions = ch_versions.mix(STRAINPHLAN.out.versions)
 
     //
     // Collate and save software versions
