@@ -17,11 +17,10 @@ nextflow.enable.dsl = 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { STRAINFLOW  } from './workflows/strainflow'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_strainflow_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_strainflow_pipeline'
-
-include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_strainflow_pipeline'
+include { STRAINFLOW                } from './workflows/strainflow'
+include { PIPELINE_INITIALISATION   } from './subworkflows/local/utils_nfcore_strainflow_pipeline'
+include { PIPELINE_COMPLETION       } from './subworkflows/local/utils_nfcore_strainflow_pipeline'
+include { getGenomeAttribute        } from './subworkflows/local/utils_nfcore_strainflow_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,6 +46,7 @@ workflow NFCORE_STRAINFLOW {
 
     take:
     samplesheet // channel: samplesheet read in from --input
+    profiles
 
     main:
 
@@ -54,7 +54,8 @@ workflow NFCORE_STRAINFLOW {
     // WORKFLOW: Run pipeline
     //
     STRAINFLOW (
-        samplesheet
+        samplesheet,
+        profiles
     )
 
     emit:
@@ -81,14 +82,16 @@ workflow {
         params.monochrome_logs,
         args,
         params.outdir,
-        params.input
+        params.input,
+        params.profiles
     )
 
     //
     // WORKFLOW: Run main workflow
     //
     NFCORE_STRAINFLOW (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.samplesheet,
+        PIPELINE_INITIALISATION.out.profiles
     )
 
     //
