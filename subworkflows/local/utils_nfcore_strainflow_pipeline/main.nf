@@ -36,6 +36,7 @@ workflow PIPELINE_INITIALISATION {
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
+    profiles          // string: Path to merged metaphlan table
 
     main:
 
@@ -81,6 +82,7 @@ workflow PIPELINE_INITIALISATION {
 
     emit:
     samplesheet = input
+    profiles    = profiles
     versions    = ch_versions
 }
 
