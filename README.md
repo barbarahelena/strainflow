@@ -1,4 +1,4 @@
-<h1>Strainflow: a StrainPhlAn pipeline in Nextflow</h1>
+<h1>Strainflow: a StrainPhlAn pipeline to assess strainsharing</h1>
 
 [![GitHub Actions CI Status](https://github.com/nf-core/strainflow/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/strainflow/actions/workflows/ci.yml)
 [![GitHub Actions Linting Status](https://github.com/nf-core/strainflow/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/strainflow/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/strainflow/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
@@ -16,42 +16,36 @@
 
 1. Sample input check
 2. [`StrainPhlAn`](https://github.com/biobakery/MetaPhlAn/wiki/StrainPhlAn-4) to get species-level genome bins (SGBs) and make a table of the number of SNPs between the sample strains and the reference genome based on the strain alignment.
-  - Get SGBs
-  - Extract markers
-  - StrainPhlAn
-  - Calculate pairwise distance
-  - Calculate optimal threshold to define strainsharing
-  - Merge strainsharing tables
+    - Get SGBs
+    - Extract markers
+    - StrainPhlAn
+    - Calculate pairwise distance
+    - Calculate optimal threshold to define strainsharing
+    - Merge strainsharing tables
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
 First, prepare a samplesheet with your input data that looks as follows:
 
-`samplesheet.csv`:
+`samplesheet.tsv`:
 
-```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+```tsv
+sampleID	subjectID	sambz	timepoint
+S1000_BA	S1000	data/S1000_BA.sam.bz2	baseline
+S1000_FU	S1000	data/S1000_FU.sam.bz2	follow-up
 ```
-
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
+Each row represents a sam.bz2 file resulting from Metaphlan (4.0.5). You will also need the merged profile (txt) table as produced by Metaphlan.
 
 Now, you can run the pipeline using:
 
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
-
 ```bash
-nextflow run nf-core/strainflow \
+nextflow run strainflow/main.nf \
    -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
+   --input samplesheet.tsv \
+   --profiles metaphlan_merged_profiles.txt \
    --outdir <OUTDIR>
 ```
 
@@ -62,18 +56,12 @@ nextflow run nf-core/strainflow \
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/strainflow/usage) and the [parameter documentation](https://nf-co.re/strainflow/parameters).
 
 ## Pipeline output
+All output of the different parts of the pipeline are stored in subdirectories of the output directory. Other important outputs are the multiqc report in the multiqc folder and the execution html report in the pipeline_info folder.
 
-To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/strainflow/results) tab on the nf-core website pipeline page.
-For more details about the output files and reports, please refer to the
-[output documentation](https://nf-co.re/strainflow/output).
+For more details on the pipeline output, please refer to the [output documentation](https://github.com/barbarahelena/strainflow/blob/master/docs/output.md).
 
 ## Credits
-
-nf-core/strainflow was originally written by barbarahelena.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+I used the nf-core template as much as possible and used [Eduard's strainsharing pipeline](https://github.com/EvdVossen/Metagenomic_pipeline/tree/main) and the [Biobakery documentation](https://github.com/biobakery/MetaPhlAn/wiki/Strain-Sharing-Inference-(StrainPhlan-4.1)) on strainsharing analysis with StrainPhlAn as examples.
 
 ## Contributions and Support
 
@@ -82,8 +70,6 @@ If you would like to contribute to this pipeline, please see the [contributing g
 For further information or help, don't hesitate to get in touch on the [Slack `#strainflow` channel](https://nfcore.slack.com/channels/strainflow) (you can join with [this invite](https://nf-co.re/join/slack)).
 
 ## Citations
-
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
 <!-- If you use nf-core/strainflow for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
