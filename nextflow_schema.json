@@ -264,11 +264,11 @@
         },
         "sample_with_n_markers": {
             "type": "integer",
-            "default": 80
+            "default": 20
         },
         "marker_in_n_samples": {
             "type": "integer",
-            "default": 80
+            "default": 50
         },
         "phylophlan_mode": {
             "type": "string",
@@ -277,6 +277,10 @@
         "mutation_rates": {
             "type": "boolean",
             "default": true
+        },
+        "sample_markers_filter": {
+            "type": "integer",
+            "default": 10
         }
     }
 }
