@@ -1,6 +1,8 @@
 process STRAINPHLAN_GETSGB {
-    label 'process_single'
+    label 'process_high'
     label 'metaphlan'
+    label 'strainphlan_publish'
+    label 'process_long'
 
     input:
     path(markers)
@@ -9,9 +11,6 @@ process STRAINPHLAN_GETSGB {
     output:
     path("clades/*.tsv")                   , emit: clades
     path "versions.yml"                    , emit: versions
-
-    when:
-    markers.size() < 3
 
     script:
     def args = task.ext.args ?: ''
@@ -25,9 +24,10 @@ process STRAINPHLAN_GETSGB {
         -s $markers \\
         -d \$INDEX \\
         --mutation_rates \\
-        --sample_with_n_markers 1 \\
-        --marker_in_n_samples 1 \\
-        --sample_with_n_markers_after_filt 1 \\
+        -n ${task.cpus} \\
+        --sample_with_n_markers 20 \\
+        --marker_in_n_samples 50 \\
+        --sample_with_n_markers_after_filt 10 \\
 		--print_clades_only \\
         -o clades
 
@@ -39,7 +39,6 @@ process STRAINPHLAN_GETSGB {
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
     """
 
     cat <<-END_VERSIONS > versions.yml
