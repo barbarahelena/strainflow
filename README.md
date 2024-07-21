@@ -11,6 +11,7 @@
 ## Introduction
 
 **strainflow** is a bioinformatics pipeline that uses StrainPhlan to assess strainsharing between the same subjects at two different timepoints.
+![strainflow](https://github.com/user-attachments/assets/6b78775b-cf6a-4d61-b5a9-25d1c357adc8)
 
 1. Sample input check
 2. [`StrainPhlAn`](https://github.com/biobakery/MetaPhlAn/wiki/StrainPhlAn-4) to get species-level genome bins (SGBs) and make a table of the number of SNPs between the sample strains and the reference genome based on the strain alignment.
