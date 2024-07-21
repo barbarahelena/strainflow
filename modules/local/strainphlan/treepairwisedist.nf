@@ -1,14 +1,13 @@
 process STRAINPHLAN_TREEPAIRWISEDIST {
     tag "$clade"
-    label 'process_medium'
-    label 'metaphlan'
+    label 'process_single'
 
     input:
     tuple   val(clade), path(tree)
 
     output:
-    path "strainphlan_output/$clade/*_nGD.tsv"   , emit: dist
-    path "versions.yml"                          , emit: versions
+    tuple val(clade), path("strainphlan_output/$clade/*_nGD.tsv")   , emit: dist
+    path "versions.yml"                                             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -17,9 +16,6 @@ process STRAINPHLAN_TREEPAIRWISEDIST {
     def args = task.ext.args ?: ''
     
     """
-    INDEX=\$(find -L $database/ -name "*.pkl")
-    [ -z "\$INDEX" ] && echo "Pickle file not found in $database" 1>&2 && exit 1
-
     mkdir -p strainphlan_output
     mkdir -p strainphlan_output/$clade
 
@@ -29,7 +25,7 @@ process STRAINPHLAN_TREEPAIRWISEDIST {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        strainphlan: \$(strainphlan --version |& sed '1!d ; s/StrainPhlAn //')
+        python: \$(python --version | sed -E 's/[^0-9]+//g')
     END_VERSIONS
     """
 
