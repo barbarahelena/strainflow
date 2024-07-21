@@ -1,7 +1,8 @@
 process STRAINPHLAN_STRAINPHLAN {
     tag "$clade"
-    label 'process_medium'
     label 'metaphlan'
+    label 'strainphlan_publish'
+    label 'error_retry'
 
     input:
     path    consensusmarkers
@@ -9,15 +10,16 @@ process STRAINPHLAN_STRAINPHLAN {
     path    database
     val     sample_with_n_markers
     val     marker_in_n_samples
+    val     sample_markers_filter
     val     phylophlan_mode
     val     mutation_rates
     
 
     output:
     tuple val(clade), path("strainphlan_output/$clade/RAxML_bestTree.*.StrainPhlAn4.tre")   , emit: tree
-	path "strainphlan_output/$clade/*.info"                                                 , emit: info
-	path "strainphlan_output/$clade/*.StrainPhlAn4_concatenated.aln"                        , emit: aln
-    path "strainphlan_output/$clade/*_mutation_rates.tsv"                                   , emit: mutrate
+	tuple val(clade), path ("strainphlan_output/$clade/*.info")                             , emit: info
+	tuple val(clade), path ("strainphlan_output/$clade/*.StrainPhlAn4_concatenated.aln")    , emit: aln
+    path "strainphlan_output/$clade/*_mutation_rates/*"                                     , emit: mutrate
     path "versions.yml"                                                                     , emit: versions
 
     when:
@@ -26,6 +28,7 @@ process STRAINPHLAN_STRAINPHLAN {
     script:
     def args = task.ext.args ?: ''
     def mr = mutation_rates ? "--mutation_rates" : ""
+    def filt = sample_markers_filter ? "--sample_with_n_markers_after_filt ${sample_markers_filter}" : ""
     
     """
     INDEX=\$(find -L $database/ -name "*.pkl")
@@ -42,6 +45,7 @@ process STRAINPHLAN_STRAINPHLAN {
         -n $task.cpus \\
         -c $clade \\
         $mr \\
+        $filt \\
         $args \\
         --sample_with_n_markers ${sample_with_n_markers} \\
         --marker_in_n_samples ${marker_in_n_samples} \\
