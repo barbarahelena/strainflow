@@ -1,28 +1,27 @@
-<h1>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/nf-core-strainflow_logo_dark.png">
-    <img alt="nf-core/strainflow" src="docs/images/nf-core-strainflow_logo_light.png">
-  </picture>
-</h1>
+<h1>Strainflow: a StrainPhlAn pipeline in Nextflow</h1>
 
 [![GitHub Actions CI Status](https://github.com/nf-core/strainflow/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/strainflow/actions/workflows/ci.yml)
 [![GitHub Actions Linting Status](https://github.com/nf-core/strainflow/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/strainflow/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/strainflow/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
-[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.04.0-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/nf-core/strainflow)
 
-[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23strainflow-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/strainflow)[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?labelColor=000000&logo=twitter)](https://twitter.com/nf_core)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
+[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?labelColor=000000&logo=twitter)](https://twitter.com/BarbaraVerhaar)
 
 ## Introduction
 
-**strainflow** is a bioinformatics pipeline that uses StrainPhlan
+**strainflow** is a bioinformatics pipeline that uses StrainPhlan to assess strainsharing between the same subjects at two different timepoints.
 
 1. Sample input check
-2. [`StrainPhlAn`](https://github.com/biobakery/MetaPhlAn/wiki/StrainPhlAn-4) to get species-level genome bins (SGBs) and make a table of the number of SNPs between the sample strains and the reference genome based on the strain alignment - this subworkflow is under development.
+2. [`StrainPhlAn`](https://github.com/biobakery/MetaPhlAn/wiki/StrainPhlAn-4) to get species-level genome bins (SGBs) and make a table of the number of SNPs between the sample strains and the reference genome based on the strain alignment.
+  - Get SGBs
+  - Extract markers
+  - StrainPhlAn
+  - Calculate pairwise distance
+  - Calculate optimal threshold to define strainsharing
+  - Merge strainsharing tables
 
 ## Usage
 
