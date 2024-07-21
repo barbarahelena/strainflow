@@ -2,6 +2,8 @@ process STRAINPHLAN_EXTRACTMARKERS {
     tag "$clade"
     label 'process_medium'
     label 'metaphlan'
+    label 'strainphlan_publish'
+    label 'error_retry'
 
     input:
     val(clade)
