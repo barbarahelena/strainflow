@@ -17,7 +17,8 @@ workflow INPUT_CHECK {
         .set { sambz }
 
     emit:
-    sambz                                    // channel: [ val(meta), [ filename ] ]
+    sambz                                    
+    samplesheet = SAMPLESHEETCHECK.out.csv
     versions = SAMPLESHEETCHECK.out.versions // channel: [ versions.yml ]
 }
 
