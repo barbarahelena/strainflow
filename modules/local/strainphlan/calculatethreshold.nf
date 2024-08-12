@@ -126,8 +126,8 @@ process STRAINPHLAN_CALCULATETHRESHOLD {
     table_output <- data.frame(
       SGB = sgb_tax\$sgb,
       taxonomy = sgb_tax\$taxonomy,
-      n_markers = str_extract(info_sgb[12], "[0-9]+"),
-      n_samples = str_extract(info_sgb[13], "[0-9]+"),
+      n_markers = str_extract(info_sgb[13], "[0-9]+"),
+      n_samples = str_extract(info_sgb[14], "[0-9]+"),
       aln_length = nchar(as.character(aln)[[1]]),
       avg_gap_prop = length(str_extract_all(as.character(aln[[1]]), "-")[[1]]) / nchar(as.character(aln)[[1]]),
       threshold_value = threshold, method = method,
