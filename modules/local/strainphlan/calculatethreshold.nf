@@ -62,8 +62,10 @@ process STRAINPHLAN_CALCULATETHRESHOLD {
                 subjectid_1 == subjectid_2 ~ "same",
                 .default = "different"
       ))
-    manydifferent <- case_when(length(nGD\$relation == "same") > 50 ~ "many",
-                                  length(nGD\$relation == "same") > 25 ~ "few",
+    # count same-subject pairs (not all pairs) to decide which threshold method has enough power
+    n_same <- sum(nGD\$relation == "same", na.rm = TRUE)
+    manydifferent <- case_when(n_same > 50 ~ "many",
+                                  n_same > 25 ~ "few",
                                   .default = "too few")
 
     # Calculate threshold
@@ -72,6 +74,7 @@ process STRAINPHLAN_CALCULATETHRESHOLD {
         if (manydifferent == "many") {
           # If there is enough power, Youden or 5th percentile (whichever lower)
           res_youden <- cutpointr(data = nGD, x = distance, class = relation, 
+                                    pos_class = "same", direction = "<=",
                                     method = maximize_metric, metric = youden)
           sum_youd_cm <- as.data.frame(summary(res_youden)\$confusion_matrix)
           res_youden <- res_youden %>% mutate(max_youden = sensitivity + specificity - 1,
